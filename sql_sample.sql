@@ -92,3 +92,92 @@ CASE
     WHEN a IS NULL THEN '데이터 없음'
     ELSE '미지정'
 END AS "성별" FROM sample37;
+
+SELECT * FROM sample41;
+DESC sample41;
+INSERT INTO sample41 VALUES(1, 'ABC', '2014-01-25');
+INSERT INTO sample41(a, no) VALUES('XYZ', 2);
+INSERT INTO sample41(no, a, b) VALUES(NULL, NULL, NULL); -- no column이 NOT NULL이라 에러
+INSERT INTO sample41(no, a, b) VALUES(3, NULL, NULL);
+
+SELECT * FROM sample411;
+DESC sample411;
+INSERT INTO sample411(no, d) VALUES(1, 1);
+INSERT INTO sample411(no, d) VALUES(2, DEFAULT);
+INSERT INTO sample411(no) VALUES(3);
+
+SELECT * FROM sample41;
+set SQL_SAFE_UPDATES = 0; -- safe mode 해제
+DELETE FROM sample41 WHERE no = 3;
+UPDATE sample41 SET b = '2014-09-07' WHERE no = 2;
+UPDATE sample41 SET no = no + 1;
+UPDATE sample41 SET a = 'xxx', b = '2014-01-01' WHERE no = 2;
+UPDATE sample41 SET a = NULL;
+set SQL_SAFE_UPDATES = 1; -- safe mode 설정
+
+SELECT * FROM sample51;
+SELECT count(*) FROM sample51;
+SELECT * FROM sample51 WHERE name = 'A';
+SELECT count(*) FROM sample51 WHERE name = 'A';
+SELECT count(no), count(name) FROM sample51;
+SELECT ALL name FROM sample51;
+SELECT DISTINCT name FROM sample51;
+SELECT count(ALL name), count(DISTINCT name) FROM sample51;
+
+SELECT * FROM sample51;
+SELECT sum(quantity) FROM sample51;
+SELECT avg(quantity), sum(quantity)/count(quantity) FROM sample51; -- NULL 미포함
+SELECT avg(CASE WHEN quantity IS NULL THEN 0 ELSE quantity END) AS avgnull0 FROM sample51; -- NULL을 0으로 계산
+
+SELECT * FROM sample51;
+SELECT name FROM sample51 GROUP BY name;
+SELECT name, count(name), sum(quantity) FROM sample51 GROUP BY name;
+SELECT name, count(name), sum(quantity) FROM sample51 GROUP BY name HAVING count(name) = 1;
+SELECT name, count(name), sum(quantity) FROM sample51 GROUP BY name ORDER BY sum(quantity) DESC;
+-- 서버에서 내부처리 순서 : WHERE 구 -> GROUP BY 구 -> HAVING 구 -> SELECT 구 -> ORDER BY 구
+
+SELECT * FROM sample54;
+SELECT min(a) FROM sample54;
+set SQL_SAFE_UPDATES = 0; -- safe mode 해제
+DELETE FROM sample54 WHERE a = (SELECT min(a) FROM sample54); -- mysql에서는 실행 안됨
+SET @a = (SELECT min(a) FROM sample54);
+DELETE FROM sample54 WHERE a = @a;
+set SQL_SAFE_UPDATES = 1; -- safe mode 설정
+
+-- 서브쿼리의 패턴
+SELECT min(a) FROM sample54; -- 1. 하나의 값(스칼라)
+SELECT no FROM sample54; -- 2. 복수의 행, 하나의 열
+SELECT min(a), max(no) FROM sample54; -- 3. 하나의 행, 복수의 열
+SELECT no, a FROM sample54; -- 4. 복수의 행, 복수의 열
+-- 하나의 값(스칼라)가 서브쿼리로 사용하기 쉽다
+
+SELECT
+	(SELECT count(*) FROM sample51) AS sq1,
+    (SELECT count(*) FROM sample54) AS sq2;
+set SQL_SAFE_UPDATES = 0; -- safe mode 해제
+UPDATE sample54 SET a = (SELECT max(a) FROM sample54); -- mysql에서는 실행 안됨
+SET @a = (SELECT max(a) FROM sample54);
+UPDATE sample54 SET a = @a;
+set SQL_SAFE_UPDATES = 1; -- safe mode 설정
+
+SELECT * FROM sample541;
+INSERT INTO sample541 VALUES (
+	(SELECT count(*) FROM sample51),
+    (SELECT count(*) FROM sample54)
+);
+INSERT INTO sample541 SELECT 1, 2;
+
+SELECT * FROM sample542;
+SELECT * FROM sample543;
+INSERT INTO sample542 SELECT * FROM sample543; -- 열 구성이 똑같은 테이블 사이에 행을 복사하는 것
+-- sample542, sample543이 없다
+
+SELECT * FROM sample551;
+SELECT * FROM sample552;
+set SQL_SAFE_UPDATES = 0; -- safe mode 해제
+UPDATE sample551 SET a = '있음' WHERE EXISTS (SELECT * FROM sample552 WHERE sample552.no2 = sample551.no);
+UPDATE sample551 SET a = '없음' WHERE NOT EXISTS (SELECT * FROM sample552 WHERE sample552.no2 = sample551.no);
+set SQL_SAFE_UPDATES = 1; -- safe mode 설정
+
+SELECT * FROM sample551 WHERE no IN (3, 5);
+SELECT * FROM sample551 WHERE no IN (SELECT no2 FROM sample552);
