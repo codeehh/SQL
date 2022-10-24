@@ -181,3 +181,67 @@ set SQL_SAFE_UPDATES = 1; -- safe mode 설정
 
 SELECT * FROM sample551 WHERE no IN (3, 5);
 SELECT * FROM sample551 WHERE no IN (SELECT no2 FROM sample552);
+
+CREATE TABLE sample62 (
+	no INTEGER NOT NULL,
+    a VARCHAR(30),
+    b DATE
+);
+DESC sample62;
+DROP TABLE sample62;
+TRUNCATE TABLE sample62; -- 테이블은 지우지 않고 모든 데이터 삭제
+ALTER TABLE sample62 ADD newcol INTEGER; -- 열 추가
+ALTER TABLE sample62 MODIFY newcol VARCHAR(20); -- 열 속성 변경
+ALTER TABLE sample62 CHANGE newcol c INTEGER; -- 열 이름 변경
+ALTER TABLE sample62 DROP c; -- 열 삭제
+
+CREATE TABLE sample631 (
+	a INTEGER NOT NULL,
+    b INTEGER NOT NULL UNIQUE,
+    c VARCHAR(30)
+);
+DESC sample631;
+CREATE TABLE sample632 (
+	no INTEGER NOT NULL,
+    sub_no INTEGER NOT NULL,
+    name VARCHAR(30),
+    CONSTRAINT pkey_sample PRIMARY KEY(no, sub_no) -- CONSTRAINT : 제약 이름 정하기
+);
+DESC sample632;
+
+DESC sample631;
+ALTER TABLE sample631 MODIFY c VARCHAR (30) NOT NULL; -- 열 제약 추가
+ALTER TABLE sample631 ADD CONSTRAINT pkey_sample631 PRIMARY KEY(a); -- 테이블 제약 추가
+ALTER TABLE sample631 MODIFY c VARCHAR (30); -- 열 제약 삭제
+ALTER TABLE sample631 DROP CONSTRAINT pkey_sample631; -- 테이블 제약 삭제(에러떠서 바로 아래 코드로 삭제함)
+ALTER TABLE sample631 DROP PRIMARY KEY; -- 테이블 제약 삭제
+
+CREATE TABLE sample634(
+	p INTEGER NOT NULL,
+    a VARCHAR(30),
+    CONSTRAINT pkey_sample634 PRIMARY KEY(p)
+);
+INSERT INTO sample634 VALUES (1, '첫째줄');
+INSERT INTO sample634 VALUES (2, '둘째줄');
+INSERT INTO sample634 VALUES (3, '셋째줄');
+SELECT * FROM sample634;
+INSERT INTO sample634 VALUES (2, '넷째줄'); -- 중복 에러
+UPDATE sample634 SET p = 2 WHERE p = 3; -- 중복 에러
+
+DESC sample635; -- 복수의 열로 기본키를 구성
+SELECT * FROM sample635; -- a는 중복이어도 b까지 고려했을 때 중복이 아니라 괜찮다.
+
+DESC sample62;
+SELECT * FROM sample62;
+CREATE INDEX isample65 ON sample62(a); -- 인덱스를 작성한 열로 검색하는 경우 처리속도가 빨라짐
+DROP INDEX isample65 ON sample62;
+
+EXPLAIN SELECT * FROM sample62 WHERE a = 'a'; -- 인덱스 사용
+EXPLAIN SELECT * FROM sample62 WHERE no = 1; -- 인덱스 사용 x
+
+CREATE VIEW sample_view_67 AS SELECT * FROM sample54;
+INSERT INTO sample54 VALUES (5, 1000); -- VIEW 생성 후 테이블에 데이터 추가해도 VIEW에 반영이 됨
+SELECT * FROM sample_view_67;
+CREATE VIEW sample_view_672(n, v, v2) AS SELECT no, a, a*2 FROM sample54;
+SELECT * FROM sample_view_672 WHERE n = 1;
+DROP VIEW sample_view_672;
