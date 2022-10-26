@@ -245,3 +245,56 @@ SELECT * FROM sample_view_67;
 CREATE VIEW sample_view_672(n, v, v2) AS SELECT no, a, a*2 FROM sample54;
 SELECT * FROM sample_view_672 WHERE n = 1;
 DROP VIEW sample_view_672;
+
+SELECT * FROM sample71_a;
+SELECT * FROM sample71_b;
+
+SELECT * FROM sample71_a
+UNION
+SELECT * FROM sample71_b; -- 열 이름은 다르지만 열 개수와 자료형이 같기 때문에 합칠 수 있다.
+
+SELECT * FROM sample71_a
+UNION
+SELECT * FROM sample71_b
+UNION
+SELECT * FROM sample31; -- 열 개수가 다르다.
+
+SELECT * FROM sample71_a
+UNION
+SELECT * FROM sample71_b
+UNION
+SELECT age FROM sample31; -- 자료형이 같은 하나의 열만 지정하면 됨
+
+SELECT * FROM sample71_a
+UNION
+SELECT * FROM sample71_b ORDER BY a;
+
+SELECT a AS c FROM sample71_a
+UNION
+SELECT b AS c FROM sample71_b ORDER BY c;
+
+SELECT * FROM sample71_a
+UNION ALL
+SELECT * FROM sample71_b; -- 중복을 제거하지 않음
+-- MySQL에서는 교집합, 차집합 구하는 명령어가 없음
+
+SELECT * FROM sample72_x;
+SELECT * FROM sample72_y;
+SELECT * FROM sample72_x, sample72_y;
+
+SELECT * FROM `상품`;
+SELECT * FROM `재고수`;
+SELECT * FROM `상품`, `재고수`;
+SELECT * FROM `상품`, `재고수` WHERE `상품`.`상품코드` = `재고수`.`상품코드`; -- 내부결합(Inner Join)
+SELECT `상품`.`상품명`, `재고수`.`재고수` FROM `상품`, `재고수` WHERE `상품`.`상품코드` = `재고수`.`상품코드` AND `상품`.`상품분류` = '식료품'; -- 구식 방법
+SELECT `상품`.`상품명`, `재고수`.`재고수` FROM `상품` INNER JOIN `재고수` ON `상품`.`상품코드` = `재고수`.`상품코드` WHERE `상품`.`상품분류` = '식료품'; -- 최근 방법
+
+SELECT * FROM `상품2`;
+SELECT * FROM `메이커`;
+SELECT S.`상품명`, M.`메이커명` FROM `상품2` S INNER JOIN `메이커` M ON S.`메이커코드` = M.`메이커코드`;
+SELECT S1.`상품명`, S2.`상품명` FROM `상품2` S1 INNER JOIN `상품2` S2 ON S1.`상품코드` = S2.`상품코드`; -- 자기결합(구별하기 위해 반드시 별명을 붙여야 함)
+
+SELECT * FROM `상품3`;
+SELECT * FROM `재고수`;
+SELECT `상품3`.`상품명`, `재고수`.`재고수` FROM `상품3` INNER JOIN `재고수` ON `상품3`.`상품코드` = `재고수`.`상품코드` WHERE `상품3`.`상품분류` = '식료품'; -- 추가상품이 출력되지 않는다
+SELECT `상품3`.`상품명`, `재고수`.`재고수` FROM `상품3` LEFT JOIN `재고수` ON `상품3`.`상품코드` = `재고수`.`상품코드` WHERE `상품3`.`상품분류` = '식료품'; -- 외부결합
