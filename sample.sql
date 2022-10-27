@@ -298,3 +298,17 @@ SELECT * FROM `상품3`;
 SELECT * FROM `재고수`;
 SELECT `상품3`.`상품명`, `재고수`.`재고수` FROM `상품3` INNER JOIN `재고수` ON `상품3`.`상품코드` = `재고수`.`상품코드` WHERE `상품3`.`상품분류` = '식료품'; -- 추가상품이 출력되지 않는다
 SELECT `상품3`.`상품명`, `재고수`.`재고수` FROM `상품3` LEFT JOIN `재고수` ON `상품3`.`상품코드` = `재고수`.`상품코드` WHERE `상품3`.`상품분류` = '식료품'; -- 외부결합
+
+CREATE TABLE sample81 (
+	no INTEGER AUTO_INCREMENT,
+    data VARCHAR(30),
+    PRIMARY KEY (no)
+);
+TRUNCATE TABLE sample81;
+SELECT * FROM sample81;
+START TRANSACTION;
+INSERT INTO sample81 VALUES (0, "data1");
+INSERT INTO sample81 VALUES (0, "data2");
+INSERT INTO sample81 VALUES (0, "data3");
+COMMIT;
+ROLLBACK;
